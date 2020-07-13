@@ -6,15 +6,17 @@ import javafx.application.Platform;
 
 public abstract class MLP {
     
-    private String mlpName ="";             //A chosen name for the ann
+    private String mlpName ="";                 //A chosen name for the ann
     private ArrayList<float[]> data = null;     //Actual input data that ann will be train with
-    private int hiddenLayerCount = -1 ;       //Number of hidden layers
-    private int inputLayerCount = 0;        //Number of input layers which is actualy the dimension of the input
-    private int outputLayerCount = 0;      //Number of output layers whic
+    private int hiddenLayerCount = -1 ;         //Number of hidden layers
+    private int inputLayerCount = 0;            //Number of input layers which is actualy the dimension of the input
+    private int outputLayerCount = 0;           //Number of output layers whic
     
-    private boolean isClassActivated = false;
+    private float[][][] weights;                  //Weights of the network
     
-    MLP(){}
+    private boolean isClassActivated;
+    
+    MLP(){isClassActivated = false;}
     
     MLP(String name , int hiddenLayer , int outputLayer){
         
@@ -80,6 +82,18 @@ public abstract class MLP {
     
     public abstract double activation_function_derivative(double input);
     
+    private double induced_field(int layer  , int neuron , double[] signals ){
+        
+        
+        double induced_field = 0;
+        
+        for(int i = 0 ; i < signals.length ; i++)
+            induced_field += weights[layer][neuron][i] * signals[i];
+        
+        return induced_field;
+        
+        
+    } 
     
     
     
