@@ -52,7 +52,7 @@ public abstract class MLP {
     
     public boolean init(ArrayList<double[]> train , int numberOfHiddenLayers, int hiddenLayerDimension, int outPutDimension, int inputDimension, double learningRate)  {
     
-        if (train != null && numberOfHiddenLayers >= 0 && hiddenLayerDimension > 0 && outPutDimension > 0 && inputDimension > 0 && learningRate > 0 && learningRate <= 0)
+        if (train != null && numberOfHiddenLayers >= 0 && hiddenLayerDimension > 0 && outPutDimension > 0 && inputDimension > 0 && learningRate > 0 && learningRate <= 1)
             isClassActivated = true;
         
         else return false;
@@ -75,7 +75,7 @@ public abstract class MLP {
         
         //creating the apropriate array of weights
         for (int i = 0 ; i < weights.length ; i++){
-                if ( i == hiddenLayerCount )
+                if ( i == weights.length - 1 )
                     this.weights[i] = new double[outputLayerDimension][this.hiddenLayerDimension];
                 
                 else if (i == 0)
@@ -93,14 +93,12 @@ public abstract class MLP {
         
         //Creating bias array
         for (int i = 0 ; i < bias.length ; i++){
-                if ( i == hiddenLayerCount )
+                if ( i == bias.length - 1 )
                     this.bias[i] = new double[outputLayerDimension];
                 
-                else if ( i == 0 )
-                    this.bias[i] = new double[hiddenLayerDimension];
-                
                 else
-                    this.bias[i] = new double[inputLayerDimension];
+                    
+                    this.bias[i] = new double[hiddenLayerDimension];
         }
         
         
@@ -113,6 +111,30 @@ public abstract class MLP {
         return true;     
         
         
+    }
+    
+    public double[] activate(double[] data){
+        
+        double[] preLayerSignals = data;
+        
+        for (int i=0 ; i < weights.length ; i++){ //Choses the layer
+            
+            double[] signals = new double[weights[i].length];
+
+            for (int j = 0 ; j < weights[i].length ; j++){ //Looping through neurons
+
+                double sum = this.bias[i][j];
+                for (int k = 0 ; k < weights[i][j].length ; k++)
+                    sum += preLayerSignals[k] * weights[i][j][k];
+                
+                signals[j] = sum;
+
+            }
+            
+            preLayerSignals = signals;
+        }
+
+        return preLayerSignals;
     }
     
     public abstract double activation_function(double input);

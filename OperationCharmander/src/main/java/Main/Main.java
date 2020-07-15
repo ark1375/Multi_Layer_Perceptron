@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.lang.Math;
+import java.util.ArrayList;
 
 //class vector{
         
@@ -78,9 +79,18 @@ public class Main {
 //        double[][][] n = new double [3][3][5];
 //        System.out.println(n[0][0].length);
         
-//          Sig_MLP m;
-//          m = new Sig_MLP("name");
-//          m.init(2,5,3,6,0.25);
+          Sig_MLP m;
+          m = new Sig_MLP("name");
+          ArrayList<double[]> dataset = new ArrayList<>();
+          double[] data = {2.5,3,4.6,3.6,1};
+          dataset.add(data);
+          dataset.add(data);
+          
+//ArrayList<double[]> train , int numberOfHiddenLayers, int hiddenLayerDimension, int outPutDimension, int inputDimension, double learningRate)
+          boolean b = m.init(dataset, 2,3,2,5,0.25);
+          double[] out = m.activate(new double[]{1,1,1,1,1});
+          for (double o : out)
+              System.out.println(o + " , ");
 
 
     }
