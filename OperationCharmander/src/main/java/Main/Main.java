@@ -1,6 +1,8 @@
 
 package Main;
 
+import MLP.MLP;
+import MLP.Sig_MLP;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -72,10 +74,14 @@ public class Main {
 //        vector vec = new vector(sumx,sumy);
 //        vector vecn = vec.normal();
 //        System.out.println(vecn);
+//        
+//        double[][][] n = new double [3][3][5];
+//        System.out.println(n[0][0].length);
         
-        
-        
-        
+//          Sig_MLP m;
+//          m = new Sig_MLP("name");
+//          m.init(2,5,3,6,0.25);
+
 
     }
     
