@@ -20,8 +20,12 @@
             or at least I could make class for nodes . But I couldn't help myself not chalenging my math skills.</br>
             So everything you'll see here is full math.</br></br>
             First </br><pre class="font-italic text-secondary">     private double[][][] weights</pre>
-            These are the weights of the network. Suppose we have<a class = "font-italic text-secondary"> weight[a][b][c]</a>. "a" will represent the layer number, "b" is
-            the neuron number and "c" is the weight number that is connected to that neuron. </br>So it's kinda like this: <a class = "font-italic text-secondary"> double[layer][neuron][weight] weights</a>
+            These are the weights of the network. Suppose we have<a class = "font-italic text-secondary"> weight[a][b][c] </a>. "a" will represent the layer number, "b" is
+            the neuron number and "c" is the weight number that is connected to that neuron. </br>So it's kinda like this: <a class = "font-italic text-secondary"> double[layer][neuron][weight] weights</a></br>
+        </p>
+            <p>Another thing that I think I should explain is the learning rate or alpha parameter. This value should be assigned from 1 to 0 (not including 0) but because user is obviously stupid, in the setter method
+            I puted some condition that if the user entered values above 1, the alpha would be set to 1 (enter 1000 alpha will be 1) and if the user entered a value below 0 (and 0) the alpha will be 0.001.</p>
+
         </p>
 
     </div>
