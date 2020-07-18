@@ -1,5 +1,7 @@
 
 package MLP;
+import java.lang.Math;
+
 
 public class Sig_MLP extends MLP{
     
@@ -10,9 +12,17 @@ public class Sig_MLP extends MLP{
     }
     
     @Override
-    public double activation_function(double input){return 2.0;}
+    public double activation_function(double input){
+    
+        return Math.tanh(input);
+    
+    }
     
     @Override
-    public double activation_function_derivative(double input){return 2.0;}
+    public double activation_function_derivative(double input){
+    
+        return (1/Math.cosh(input)) * (1/Math.cosh(input));
+
+    }
     
 }

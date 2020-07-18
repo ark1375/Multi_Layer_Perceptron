@@ -59,7 +59,7 @@ public abstract class MLP {
         
         double[] temp = train.get(0);
         
-        if (temp.length != inputDimension)
+        if (temp.length - outPutDimension != inputDimension)
             return false;
         
         this.data = train;
@@ -127,7 +127,7 @@ public abstract class MLP {
                 for (int k = 0 ; k < weights[i][j].length ; k++)
                     sum += preLayerSignals[k] * weights[i][j][k];
                 
-                signals[j] = sum;
+                signals[j] = activation_function(sum);
 
             }
             
@@ -141,29 +141,128 @@ public abstract class MLP {
     
     public abstract double activation_function_derivative(double input);
     
-    private double induced_field(int layer  , int neuron , double[] signals ){
+    private double[][] induced_field(double[] input){
         
         
-        double induced_field = 0;
+        double[][] fields =  new double[hiddenLayerCount + 1][];    //Fields array
+        double[] preLayerSignals = input;
         
-        for(int i = 0 ; i < signals.length ; i++)
-            induced_field += weights[layer][neuron][i] * signals[i];
+        for (int i=0 ; i < fields.length ; i++){                 //Creating fields array like biases array
+            if (i == hiddenLayerCount)
+                fields[i] = new double[outputLayerDimension];
+            else
+                fields[i] = new double[hiddenLayerDimension];
+        }
         
-        return induced_field;
+        for (int i=0 ; i < weights.length ; i++){ //Choses the layer
+            
+            double[] signals = new double[weights[i].length];
+
+            for (int j = 0 ; j < weights[i].length ; j++){ //Looping through neurons
+
+                double sum = this.bias[i][j];
+                for (int k = 0 ; k < weights[i][j].length ; k++)
+                    sum += preLayerSignals[k] * weights[i][j][k];
+                
+                fields[i][j] = sum;
+                signals[j] = activation_function(sum);
+
+            }
+            
+            preLayerSignals = signals;
+        }
+
+        return fields;
         
         
     } 
 
-    private double error_function(float signal , float des_signal){
+    private double[][] neurons_output(double[] input){
+    
+        double[][] outputs =  new double[hiddenLayerCount + 1][];    //Fields array
+        double[] preLayerSignals = input;
+        
+        for (int i=0 ; i < outputs.length ; i++){                 //Creating fields array like biases array
+            if (i == hiddenLayerCount)
+                outputs[i] = new double[outputLayerDimension];
+            else
+                outputs[i] = new double[hiddenLayerDimension];
+        }
+        
+        for (int i=0 ; i < weights.length ; i++){ //Choses the layer
+            
+            double[] signals = new double[weights[i].length];
 
-        return des_signal-signal;
+            for (int j = 0 ; j < weights[i].length ; j++){ //Looping through neurons
 
+                double sum = this.bias[i][j];
+                for (int k = 0 ; k < weights[i][j].length ; k++)
+                    sum += preLayerSignals[k] * weights[i][j][k];
+                
+                outputs[i][j] = activation_function(sum);
+                signals[j] = activation_function(sum);
 
+            }
+            
+            preLayerSignals = signals;
+        }
+
+        return outputs;
+    
     }
     
     public void inititate_learning(int epochs){}
     
     
+    
+    public double[][] backpropogation(double[] input){
+    
+        
+        double[] network_input = new double[inputLayerDimension];   //Network input
+        double[] desiered_output = new double[outputLayerDimension];//d(j)
+        
+        for (int i=0 ; i <  input.length ; i++){
+            if (i < inputLayerDimension)
+                network_input[i] = input[i];
+            else
+                desiered_output[i-inputLayerDimension] = input[i];
+        }
+        
+        double[] network_output = activate(network_input);      //Networks output
+        double[][] fields = induced_field(network_input);       //v(ij)
+        double[][] outputs = neurons_output(network_input);     //y(ij)
+        double[][][] weights = this.weights;                    //w(ij)
+        double[][] errors = new double[this.weights.length][];
+        
+        for (int i=0 ; i < weights.length; i++)
+            errors[i] = new double[weights[i].length];
+                
+        System.out.println("error");
+        /*Potential Error*/
+        for (int i = errors.length - 1 ; i >= 0 ; i--){     //current layer
+            for (int j = 0 ; j < errors[i].length ; j++){   //current neuron
+                
+                if (i == errors.length - 1)
+                    errors[i][j] = desiered_output[j] - network_output[j];
+                
+                else{
+                    double error = 0;
+                    
+                    for (int k = 0 ; k < errors[i+1].length ; k++)
+                        error += errors[i+1][k] * activation_function_derivative(fields[i+1][k]) * weights[i+1][k][j];
+                    
+                    
+                    errors[i][j] = error;
+                
+                }
+//            
+            }
+            
+            
+        }
+            
+        return errors;
+    }
     
     
     

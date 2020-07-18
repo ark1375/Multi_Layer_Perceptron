@@ -82,15 +82,14 @@ public class Main {
           Sig_MLP m;
           m = new Sig_MLP("name");
           ArrayList<double[]> dataset = new ArrayList<>();
-          double[] data = {2.5,3,4.6,3.6,1};
-          dataset.add(data);
-          dataset.add(data);
-          
-//ArrayList<double[]> train , int numberOfHiddenLayers, int hiddenLayerDimension, int outPutDimension, int inputDimension, double learningRate)
-          boolean b = m.init(dataset, 2,3,2,5,0.25);
-          double[] out = m.activate(new double[]{1,1,1,1,1});
-          for (double o : out)
-              System.out.println(o + " , ");
+          double[] d1 = {0.5,0.3,0.4,1,1};
+          dataset.add(d1);
+//public boolean init(int numberOfHiddenLayers, int hiddenLayerDimension, int outPutDimension, int inputDimension, double learningRate)
+          boolean b = m.init(dataset, 1,2,2,3,0.25);
+          double[][] er = m.backpropogation(d1);
+          for (double[] o1 : er)
+              for (double o : o1)
+                System.out.println(o + " , ");
 
 
     }
