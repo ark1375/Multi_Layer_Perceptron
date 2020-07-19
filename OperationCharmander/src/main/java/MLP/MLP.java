@@ -215,7 +215,7 @@ public abstract class MLP {
     
     
     
-    public double[][] backpropogation(double[] input){
+    public double[][][] backpropogation(double[] input){
     
         
         double[] network_input = new double[inputLayerDimension];   //Network input
@@ -260,8 +260,15 @@ public abstract class MLP {
             
             
         }
+        
+        for ( int i = this.weights.length - 1 ; i >= 0 ; i--)
+            for (int j=0 ; j < this.weights[i].length ; j++)
+                for (int k = 0 ; k < this.weights[i][j].length ; k++)
+                    if ( i != 0)
+                        weights[i][j][k] += learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]) * outputs[i-1][k];
             
-        return errors;
+        this.weights = weights;
+        return weights;
     }
     
     

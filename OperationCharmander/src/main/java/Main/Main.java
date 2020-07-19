@@ -82,14 +82,40 @@ public class Main {
           Sig_MLP m;
           m = new Sig_MLP("name");
           ArrayList<double[]> dataset = new ArrayList<>();
-          double[] d1 = {0.5,0.3,0.4,1,1};
+          double[] d1 = {0.2,0.1,0.6,0.5,0.3,0.4,1,1};
           dataset.add(d1);
 //public boolean init(int numberOfHiddenLayers, int hiddenLayerDimension, int outPutDimension, int inputDimension, double learningRate)
-          boolean b = m.init(dataset, 1,2,2,3,0.25);
-          double[][] er = m.backpropogation(d1);
-          for (double[] o1 : er)
-              for (double o : o1)
-                System.out.println(o + " , ");
+          boolean b = m.init(dataset, 3,2,2,6,0.9);
+          double[][][] er = m.backpropogation(d1);
+          
+          for (double[][] o1 : er)
+              for (double[] o2 : o1)
+                  for (double o : o2)
+                    System.out.println(o + " , ");
+          
+          er = m.backpropogation(d1);
+          for (double[][] o1 : er)
+              for (double[] o2 : o1)
+                  for (double o : o2)
+                    System.out.println(o + " , ");
+          
+          er = m.backpropogation(d1);
+          for (double[][] o1 : er)
+              for (double[] o2 : o1)
+                  for (double o : o2)
+                    System.out.println(o + " , ");
+          
+          er = m.backpropogation(d1);
+          for (double[][] o1 : er)
+              for (double[] o2 : o1)
+                  for (double o : o2)
+                    System.out.println(o + " , ");
+          
+          er = m.backpropogation(d1);
+          for (double[][] o1 : er)
+              for (double[] o2 : o1)
+                  for (double o : o2)
+                    System.out.println(o + " , ");
 
 
     }
