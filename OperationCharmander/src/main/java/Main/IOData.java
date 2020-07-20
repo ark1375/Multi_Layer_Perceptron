@@ -37,36 +37,59 @@ public class IOData {
 		shuffleAllLists();
 	}
 
-	public ArrayList<double[]> getTrainData() {
-		ArrayList<BinaryImage> imageList = new ArrayList<>();
-		ArrayList<double[]> imageData = new ArrayList<>();
-
-		imageList.add(no0.get(0));
-		no0.remove(0);
-		imageList.add(no1.get(0));
-		no1.remove(0);
-		imageList.add(no2.get(0));
-		no2.remove(0);
-		imageList.add(no3.get(0));
-		no3.remove(0);
-		imageList.add(no4.get(0));
-		no4.remove(0);
-		imageList.add(no5.get(0));
-		no5.remove(0);
-		imageList.add(no6.get(0));
-		no6.remove(0);
-		imageList.add(no7.get(0));
-		no7.remove(0);
-		imageList.add(no8.get(0));
-		no8.remove(0);
-		imageList.add(no9.get(0));
-		no9.remove(0);
-
-		Collections.shuffle(imageList);
-		imageData.add(imageList.get(0).getContinuousBinaryPixels());
-		imageData.add(imageList.get(0).getBinaryLabel());
-		return imageData;
-	}
+//	public ArrayList<double[]> getBatchData() {
+//		ArrayList<BinaryImage> imageList = new ArrayList<>();
+//		ArrayList<double[]> imageData = new ArrayList<>();
+//
+//		imageList.add(no0.get(0));
+//		no0.remove(0);
+//		imageList.add(no1.get(0));
+//		no1.remove(0);
+//		imageList.add(no2.get(0));
+//		no2.remove(0);
+//		imageList.add(no3.get(0));
+//		no3.remove(0);
+//		imageList.add(no4.get(0));
+//		no4.remove(0);
+//		imageList.add(no5.get(0));
+//		no5.remove(0);
+//		imageList.add(no6.get(0));
+//		no6.remove(0);
+//		imageList.add(no7.get(0));
+//		no7.remove(0);
+//		imageList.add(no8.get(0));
+//		no8.remove(0);
+//		imageList.add(no9.get(0));
+//		no9.remove(0);
+//
+//		Collections.shuffle(imageList);
+////		imageData.add(imageList.get(0).getContinuousBinaryPixels());
+////		imageData.add(imageList.get(0).getBinaryLabel());
+//		return imageData;
+//	}
+    
+    /**
+     * 
+     * @return Get All the data of train resources.<br>
+     *  List (List([]))<br><br>From the most inner part:<br>
+     *  <b>[]</b>: 1D array includes all the <i>binary pixels</i> of an image. every row separates by 28 elements. and also includes the <i>binary label</i>.<br>
+     *  <b>List([])</b>: The inner list contains 2 arrays. first one is binary pixels array. the second one is binary label. Every element of this list is for <b>just 1 image</b>.<br>
+     *  <b>List(List())</b>: this list contains all the images binary data.
+     */
+    public ArrayList<ArrayList<double[]>> getAllTrainData(){
+        ArrayList<ArrayList<double[]>> allData = new ArrayList<>();
+        ArrayList<double[]> oneData = new ArrayList<>();
+        ArrayList<BinaryImage> allImages = joinAll();   //now all images are in one list
+        
+        for (BinaryImage img : allImages){
+            oneData.add(img.getContinuousBinaryPixels());
+            oneData.add(img.getBinaryLabel());
+            allData.add(oneData);
+            oneData.clear();
+        }
+        
+        return allData;
+    }
 
 	private void shuffleAllLists() {
 		//shuffle all the number lists:
@@ -81,6 +104,21 @@ public class IOData {
 		Collections.shuffle(no8);
 		Collections.shuffle(no9);
 	}
+    
+    private ArrayList<BinaryImage> joinAll(){
+        ArrayList<BinaryImage> temp = new ArrayList<>();
+        temp.addAll(no0);
+        temp.addAll(no1);
+        temp.addAll(no2);
+        temp.addAll(no3);
+        temp.addAll(no4);
+        temp.addAll(no5);
+        temp.addAll(no6);
+        temp.addAll(no7);
+        temp.addAll(no8);
+        temp.addAll(no9);
+        return temp;
+    }
 
 	/**
 	 * first: read the image then for every pixel in the image, gather rgb data,
