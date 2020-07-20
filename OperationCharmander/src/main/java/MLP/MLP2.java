@@ -27,6 +27,8 @@ public class MLP2 {
     private ArrayList<  ArrayList<double[]> > train_data = null;     //Actual input data that ann will be train with
     private ArrayList<  ArrayList<double[]> > test_data = null;
     
+    private int train_pointer = 0;
+    
     private boolean isClassActivated = false;
     
     public MLP2(String name){  this.mlpName = name; }
@@ -264,7 +266,7 @@ public class MLP2 {
             
             double[] signals = new double[weights[i].length];
             for (int j=0 ; j < weights[i].length ; j++){
-                signals[j] = 0;
+                signals[j] = this.bias[i][j];
                 
                 for (int k=0 ; k < weights[i][j].length ; k++)
                     signals[j] += weights[i][j][k] * pre_layer_signals[k]; 
@@ -290,7 +292,7 @@ public class MLP2 {
             
             double[] signals = new double[weights[i].length];
             for (int j=0 ; j < weights[i].length ; j++){
-                signals[j] = 0;
+                signals[j] = this.bias[i][j];
                 
                 for (int k=0 ; k < weights[i][j].length ; k++)
                     signals[j] += weights[i][j][k] * pre_layer_signals[k]; 
@@ -318,7 +320,7 @@ public class MLP2 {
             
             double[] signals = new double[weights[i].length];
             for (int j=0 ; j < weights[i].length ; j++){
-                signals[j] = 0;
+                signals[j] = this.bias[i][j];
                 
                 for (int k=0 ; k < weights[i][j].length ; k++)
                     signals[j] += weights[i][j][k] * pre_layer_signals[k]; 
@@ -334,7 +336,7 @@ public class MLP2 {
     
     }
     
-    public void backpropogation(ArrayList<double[]> input){
+    private void backpropogation(ArrayList<double[]> input){
         
         if (input.size() != 2) return;
         
@@ -345,10 +347,56 @@ public class MLP2 {
         double[][] outputs = network_output(network_input);
         double[][][] weights = this.weights.clone();
         double[][] bias = this.bias.clone();
+        double[][] errors = this.bias.clone();
         
+        //Posible error
+        for (int i = this.weights.length -1 ; i >= 0 ; i--){
+            
+            if (i == this.weights.length -1)
+                for (int j=0 ; j < weights[i].length ; j++)
+                    errors[i][j] = desiered_output[j] - outputs[i][j];
+                
+            else{
+                
+                for (int j=0 ; j < this.weights[i].length ; j++){
+                    double error = 0;
+                    
+                    for (int k=0 ; k < this.weights[i+1].length ; k++)
+                        
+                        error += errors[i+1][k] * activation_function_derivative(fields[i+1][k]) * weights[i+1][k][j];
+                    
+                    errors[i][j] = error;
+                }
+            }
+            
+        }
         
+        for (int i=0 ; i < this.weights.length ; i++){
+            for (int j =0 ; j < this.weights[i].length ; j++){
+                
+                bias[i][j] += learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]);
+                
+                for (int k=0 ; k < this.weights[i][j].length ; k++){
+                    if (i == 0)
+                        weights[i][j][k] += learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]) * network_input[k];
+                    else
+                        weights[i][j][k] += learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]) * outputs[i-1][k];
+                }
+            }
+        }
         
+        this.weights = weights;
+        this.bias = bias;
         
+    }
+    
+    public void learn(int epoch){
+    
+        for (int i=0 ; i < epoch ; i++){
+            int index = train_pointer % test_data.size();
+            backpropogation(this.test_data.get(index));
+            train_pointer++;
+        }
     }
     
     public double evaluate(){
@@ -389,5 +437,21 @@ public class MLP2 {
     
     }
 
+    public void print_bias(){
+        
+        for (int i=0 ; i < this.bias.length ; i++){
+                for (int j=0 ; j < this.bias[i].length; j++){
 
+
+                    System.out.printf("B(%d,%d): %f \t" , i , j , this.bias[i][j]);
+
+
+                System.out.println("");
+                }
+                
+            System.out.println("**********************");
+
+            }
+        
+    }
 }

@@ -1,32 +1,95 @@
 
 package MLP;
+/*issues , What if user sets configs, sets data and then try to set config again*/
+
 import java.util.ArrayList;
+import java.util.Random;
+import java.lang.Math;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 
-public abstract class MLP {
+public class MLP {
     
-    
-    private int hiddenLayerCount = -1 ;          //Number of hidden layers
-    private int inputLayerDimension = 0;             //Number of input layers which is actualy the dimension of the input
-    private int outputLayerDimension = 0;            //Number of output layers whic
-    private int hiddenLayerDimension = 0;
+    /*Configs is an int array that tells the class how to build the network. Each element represent number of neurons in each layer
+    for example {a,b,c,d} is a 3 layer network with a-Dimension input 2 hidden layers with dimmension b and c and a d-dimension output
+    */
+    private int[] configs;                          
+    private boolean isConfigSet = false;
     
     private double[][][] weights;                //Weights of the network
+    private boolean isWeightsSet = false;
+    
     private double[][] bias;
+    private boolean isBiasSet = false;
     
     private String mlpName ="";                  //A chosen name for the ann
     private double learingingRate = 0;           //The alpha parameter or the learning reate
-    private ArrayList<double[]> data = null;     //Actual input data that ann will be train with
-
+    
+    private ArrayList<  ArrayList<double[]> > train_data = null;     //Actual input data that ann will be train with
+    private ArrayList<  ArrayList<double[]> > test_data = null;
+    
+    private int train_pointer = 0;
+    
     private boolean isClassActivated = false;
     
-    MLP(String name){
+    public MLP(String name){  this.mlpName = name; }
+    
+    public boolean setConfigs(int[] config){
         
-        this.mlpName = name;
+        if( config.length >= 2 && !isClassActivated) // The network isn't activated and not initialized yet
+            for(int dim : config)                    // The dimmension of each layer is bigger than 1
+                if (dim < 1)
+                    return false;
+        
+        this.configs = config;
+        
+        isConfigSet = true;
+        return true;
+                
     }
-
-    /********************************Setters************************************/
-
+    
+    public boolean setWeights(double[][][] weights){
+        
+        if (!isConfigSet && !isClassActivated)   return false;           //If configs not set yet, don't set the weights
+        
+        if (weights.length != configs.length - 1)   //If number of layers don't match
+            return false;
+        
+        for (int i=0 ; i < weights.length ; i++){   
+            
+            if (weights[i].length != configs[i+1])  //If number of neurons in each layer don't match
+                return false;
+            
+            for (int j=0 ; j < weights[i].length ; j++)
+                if (weights[i][j].length != configs[i]) //If the weights coming into a neuron don't match
+                    return false;
+        }
+        
+        this.weights = weights;
+        isWeightsSet = true;
+        return true;
+    
+    }
+    
+    public boolean setBiases(double[][] bias){
+    
+        if (!isConfigSet && !isClassActivated)   return false;           //If configs not set yet, don't set the weights
+        
+        if (bias.length != configs.length -1)       //If number of layers don't match
+            return false;
+        
+        for (int i=0 ; i < bias.length ; i++)
+            if (bias[i].length != configs[i+1])
+                return false;
+        
+        this.bias = bias;
+        isBiasSet = true;
+        return true;
+    
+    }
+    
     public void setMlpName(String mlpName) {
         this.mlpName = mlpName;
     }
@@ -44,287 +107,324 @@ public abstract class MLP {
             
     }
     
+    public boolean set_train_data(ArrayList< ArrayList<double[]> > data){
     
-    /***************************************************************************/
-    
-    
-    // this method will initialize the network
-    // inputing number of hidden layers, train data, alpha parameter, number of hidden layers
-    
-    public boolean init(ArrayList<double[]> train , int numberOfHiddenLayers, int hiddenLayerDimension, int outPutDimension, int inputDimension, double learningRate)  {
-    
-        if (train != null && numberOfHiddenLayers >= 0 && hiddenLayerDimension > 0 && outPutDimension > 0 && inputDimension > 0 && learningRate > 0 && learningRate <= 1)
-            isClassActivated = true;
+        if (!isConfigSet) return false;
         
-        else return false;
-        
-        double[] temp = train.get(0);
-        
-        if (temp.length - outPutDimension != inputDimension)
+        if (!evaluate_data(data))
             return false;
         
-        this.data = train;
-        this.hiddenLayerCount = numberOfHiddenLayers;
-        this.hiddenLayerDimension = hiddenLayerDimension;
-        this.inputLayerDimension = inputDimension;
-        this.outputLayerDimension = outPutDimension;
+        this.train_data = data;
+        
+        return true;
+        
+    }
+    
+    public boolean set_test_data(ArrayList< ArrayList<double[]> > data){
+        
+        if (!isConfigSet) return false;
+        
+        if (!evaluate_data(data))
+            return false;
+    
+        this.test_data = data;
+        
+        return true;
+    }
+    
+    private boolean evaluate_data(ArrayList< ArrayList<double[]> > data){
+        
+        for (ArrayList<double[]> dt : data){
+
+            if(dt.size() != 2)
+                return false;
+            
+            if (dt.get(0).length != configs[0])
+                return false;
+            
+            if (dt.get(1).length != configs[configs.length-1])
+                return false;
+        }
+            
+        return true;
+    
+    }
+    
+    public boolean init(ArrayList< ArrayList<double[]> > data_train, ArrayList< ArrayList<double[]> > data_test, double learningRate){
+        
+        if (isClassActivated)
+            return false;
+        
+        if (!isConfigSet)
+            return false;
+        
+        if (!set_train_data(data_train))
+            return false;
+        
+        if (!set_test_data(data_test))
+            return false;
+        
         this.learingingRate = learningRate;
         
-        
-        this.weights = new double[hiddenLayerCount + 1][][];
-        this.bias = new double[hiddenLayerCount + 1][];
-        
-        //creating the apropriate array of weights
-        for (int i = 0 ; i < weights.length ; i++){
-                if ( i == weights.length - 1 )
-                    this.weights[i] = new double[outputLayerDimension][this.hiddenLayerDimension];
+        if (!isWeightsSet){
+            
+            this.weights = new double[configs.length -1][][];
+            
+            for (int i=0 ; i < this.weights.length ; i++)
+                this.weights[i] = new double[   configs[i+1]   ][ configs[i] ];
                 
-                else if (i == 0)
-                    this.weights[i] = new double[this.hiddenLayerDimension][inputLayerDimension];
-                
-                else
-                    this.weights[i] = new double[this.hiddenLayerDimension][this.hiddenLayerDimension];
-        }
-        
-        //Setting initial weights
-        for (int i = 0 ; i < weights.length ; i++)
-            for (int j = 0; j < weights[i].length ; j++)
-                for (int k = 0; k < weights[i][j].length ; k++)
-                    this.weights[i][j][k] = 1;
-        
-        //Creating bias array
-        for (int i = 0 ; i < bias.length ; i++){
-                if ( i == bias.length - 1 )
-                    this.bias[i] = new double[outputLayerDimension];
-                
-                else
-                    
-                    this.bias[i] = new double[hiddenLayerDimension];
+            for (int i=0 ; i < this.weights.length ; i++)
+                for (int j=0 ; j < this.weights[i].length ; j++)
+                    for (int k=0 ; k < this.weights[i][j].length ; k++)
+                        this.weights[i][j][k] = new Random().nextGaussian();
+            
         }
         
         
-        //Setting initial biases
-        for (int i=0; i < this.bias.length ; i++)
-            for (int j=0 ; j < this.bias[i].length ; j++)
-                this.bias[i][j] = 0;
+        if (!isBiasSet){
+            
+            this.bias = new double[configs.length -1][];
+            
+            for (int i=0 ; i < this.bias.length ; i++)
+                this.bias[i] = new double[configs[i+1]];
+            
+        }
         
         
-        return true;     
         
+        this.isClassActivated = true;
+        
+        return true;
+    
         
     }
     
-    public boolean init(ArrayList<double[]> train , int numberOfHiddenLayers, 
-                int hiddenLayerDimension, int outPutDimension, int inputDimension, double learningRate , double[][][] weights , double[][] biases)  {
-    
-        if (train != null && numberOfHiddenLayers >= 0 && hiddenLayerDimension > 0 && outPutDimension > 0 && inputDimension > 0 && learningRate > 0 && learningRate <= 1)
-            isClassActivated = true;
+    public boolean init(ArrayList< ArrayList<double[]> > data_train, ArrayList< ArrayList<double[]> > data_test , int[] configs , double learningRate){
         
-        else return false;
-        
-        double[] temp = train.get(0);
-        
-        if (temp.length - outPutDimension != inputDimension)
+        if (isClassActivated)
             return false;
         
-        this.data = train;
-        this.hiddenLayerCount = numberOfHiddenLayers;
-        this.hiddenLayerDimension = hiddenLayerDimension;
-        this.inputLayerDimension = inputDimension;
-        this.outputLayerDimension = outPutDimension;
+        if (!setConfigs(configs))
+            return false;
+        
+        if (!set_train_data(data_train))
+            return false;
+        
+        if (!set_test_data(data_test))
+            return false;
+        
+
         this.learingingRate = learningRate;
         
-        
-        this.weights = new double[hiddenLayerCount + 1][][];
-        this.bias = new double[hiddenLayerCount + 1][];
-        
-        //creating the apropriate array of weights
-        for (int i = 0 ; i < weights.length ; i++){
-                if ( i == weights.length - 1 )
-                    this.weights[i] = new double[outputLayerDimension][this.hiddenLayerDimension];
-                
-                else if (i == 0)
-                    this.weights[i] = new double[this.hiddenLayerDimension][inputLayerDimension];
-                
-                else
-                    this.weights[i] = new double[this.hiddenLayerDimension][this.hiddenLayerDimension];
-        }
-        
-        
-        
-        if (weights.length != this.weights.length) // If number of layers didn't match
-            return false;
-        else
-            for (int i = 0 ; i < weights.length ; i++)  //If number of neurons didn't match
-                if (weights[i].length != this.weights[i].length)
-                    return false;
-                else
-                    for (int j = 0; j < weights[i].length ; j++)    //If number of weights didn't match
-                        if (weights[i][j].length != this.weights[i][j].length)
-                            return false;
+        if (!isWeightsSet){
             
-        
-                        
-        
-        //Creating bias array
-        for (int i = 0 ; i < bias.length ; i++){
-                if ( i == bias.length - 1 )
-                    this.bias[i] = new double[outputLayerDimension];
+            this.weights = new double[configs.length -1][][];
+            
+            for (int i=0 ; i < this.weights.length ; i++)
+                this.weights[i] = new double[   configs[i+1]   ][ configs[i] ];
                 
-                else
-                    
-                    this.bias[i] = new double[hiddenLayerDimension];
+            for (int i=0 ; i < this.weights.length ; i++)
+                for (int j=0 ; j < this.weights[i].length ; j++)
+                    for (int k=0 ; k < this.weights[i][j].length ; k++)
+                        this.weights[i][j][k] = new Random().nextGaussian();
+            
+        }
+        
+        if (!isBiasSet){
+            
+            this.bias = new double[configs.length -1][];
+            
+            for (int i=0 ; i < this.bias.length ; i++)
+                this.bias[i] = new double[configs[i+1]];
+            
         }
         
         
-        //Comparing biases
-        if ( biases.length != this.bias.length)
-            return false;
-        else
-            for (int i=0; i < this.bias.length ; i++)
-                if (biases[i].length != this.bias[i].length)
-                    return false;
+        this.isClassActivated = true;
         
-        this.bias = biases;
-        this.weights = weights;
-        
-        return true;     
-        
+        return true;
+    
+    
+    }
+
+    public double activation_function(double input){
+    
+        return Math.tanh(input);
         
     }
-    
-    
-    public boolean init(ArrayList<double[]> train ,int[] configs, double learningRate)  {
-    
-          
+   
+    public double activation_function_derivative(double input){
         
-        
+        return (1/Math.cosh(input)) * (1/Math.cosh(input));
+    
     }
-    public double[] activate(double[] data){
+
+    public double[] run_network(double[] input){
         
-        double[] preLayerSignals = data;
+        if (input.length != configs[0]) return null;
         
-        for (int i=0 ; i < weights.length ; i++){ //Choses the layer
+        double[] pre_layer_signals = input;
+    
+        for (int i=0 ; i < weights.length ; i++){
             
             double[] signals = new double[weights[i].length];
-
-            for (int j = 0 ; j < weights[i].length ; j++){ //Looping through neurons
-
-                double sum = this.bias[i][j];
-                for (int k = 0 ; k < weights[i][j].length ; k++)
-                    sum += preLayerSignals[k] * weights[i][j][k];
+            for (int j=0 ; j < weights[i].length ; j++){
+                signals[j] = this.bias[i][j];
                 
-                signals[j] = activation_function(sum);
-
+                for (int k=0 ; k < weights[i][j].length ; k++)
+                    signals[j] += weights[i][j][k] * pre_layer_signals[k]; 
+                
+                signals[j] = activation_function(signals[j]);
             }
             
-            preLayerSignals = signals;
+            pre_layer_signals = signals;
         }
-
-        return preLayerSignals;
+        
+        return pre_layer_signals;
+        
     }
     
-    public abstract double activation_function(double input);
-    
-    public abstract double activation_function_derivative(double input);
-    
-    private double[][] induced_field(double[] input){
+    private double[][] network_fileds(double[] input){
         
+        if (input.length != configs[0]) return null;
         
-        double[][] fields =  new double[hiddenLayerCount + 1][];    //Fields array
-        double[] preLayerSignals = input;
+        double[] pre_layer_signals = input;
+        double[][] fields = bias.clone();
         
-        for (int i=0 ; i < fields.length ; i++){                 //Creating fields array like biases array
-            if (i == hiddenLayerCount)
-                fields[i] = new double[outputLayerDimension];
-            else
-                fields[i] = new double[hiddenLayerDimension];
-        }
-        
-        for (int i=0 ; i < weights.length ; i++){ //Choses the layer
+        for (int i=0 ; i < weights.length ; i++){
             
             double[] signals = new double[weights[i].length];
-
-            for (int j = 0 ; j < weights[i].length ; j++){ //Looping through neurons
-
-                double sum = this.bias[i][j];
-                for (int k = 0 ; k < weights[i][j].length ; k++)
-                    sum += preLayerSignals[k] * weights[i][j][k];
+            for (int j=0 ; j < weights[i].length ; j++){
+                signals[j] = this.bias[i][j];
                 
-                fields[i][j] = sum;
-                signals[j] = activation_function(sum);
-
+                for (int k=0 ; k < weights[i][j].length ; k++)
+                    signals[j] += weights[i][j][k] * pre_layer_signals[k]; 
+                
+                fields[i][j] = signals[j];
+                signals[j] = activation_function(signals[j]);
             }
             
-            preLayerSignals = signals;
-        }
-
+            pre_layer_signals = signals;
+        } 
+        
         return fields;
-        
-        
-    } 
-
-    private double[][] neurons_output(double[] input){
     
-        double[][] outputs =  new double[hiddenLayerCount + 1][];    //Fields array
-        double[] preLayerSignals = input;
+    }
+    
+    //Room for improvment
+    private double[][] network_output(double[] input){
+    
+        if (input.length != configs[0]) return null;
         
-        for (int i=0 ; i < outputs.length ; i++){                 //Creating fields array like biases array
-            if (i == hiddenLayerCount)
-                outputs[i] = new double[outputLayerDimension];
-            else
-                outputs[i] = new double[hiddenLayerDimension];
-        }
+        double[] pre_layer_signals = input;
+        double[][] outputs = bias.clone();
         
-        for (int i=0 ; i < weights.length ; i++){ //Choses the layer
+        for (int i=0 ; i < weights.length ; i++){
             
             double[] signals = new double[weights[i].length];
-
-            for (int j = 0 ; j < weights[i].length ; j++){ //Looping through neurons
-
-                double sum = this.bias[i][j];
-                for (int k = 0 ; k < weights[i][j].length ; k++)
-                    sum += preLayerSignals[k] * weights[i][j][k];
+            for (int j=0 ; j < weights[i].length ; j++){
+                signals[j] = this.bias[i][j];
                 
-                outputs[i][j] = activation_function(sum);
-                signals[j] = activation_function(sum);
-
+                for (int k=0 ; k < weights[i][j].length ; k++)
+                    signals[j] += weights[i][j][k] * pre_layer_signals[k]; 
+                
+                signals[j] = activation_function(signals[j]);
+                outputs[i][j] = signals[j];
             }
             
-            preLayerSignals = signals;
+            pre_layer_signals = signals;
         }
-
+        
         return outputs;
     
     }
     
-    public void inititate_learning(int epochs){
-    
-        for(int i=0 ; i < data.size() ; i++)
-            backpropogation(data.get(i));
+    private void backpropogation(ArrayList<double[]> input){
         
-    }
-    
-    private void backpropogation(double[] input){
-    
-
+        System.out.println("bp");
+        if (input.size() != 2) return;
         
-        for ( int i = this.weights.length - 1 ; i >= 0 ; i--)
-            for (int j=0 ; j < this.weights[i].length ; j++){
+        double[] network_input = input.get(0);   //Network input
+        double[] desiered_output = input.get(1);//d(j)
+        
+        double[][] fields = network_fileds(network_input);
+        double[][] outputs = network_output(network_input);
+        double[][][] weights = this.weights.clone();
+        double[][] bias = this.bias.clone();
+        double[][] errors = this.bias.clone();
+        
+        //Posible error
+        for (int i = this.weights.length -1 ; i >= 0 ; i--){
+            
+            if (i == this.weights.length -1)
+                for (int j=0 ; j < weights[i].length ; j++)
+                    errors[i][j] = desiered_output[j] - outputs[i][j];
+                
+            else{
+                
+                for (int j=0 ; j < this.weights[i].length ; j++){
+                    double error = 0;
+                    
+                    for (int k=0 ; k < this.weights[i+1].length ; k++)
+                        
+                        error += errors[i+1][k] * activation_function_derivative(fields[i+1][k]) * weights[i+1][k][j];
+                    
+                    errors[i][j] = error;
+                }
+            }
+            
+        }
+        
+        for (int i=0 ; i < this.weights.length ; i++){
+            for (int j =0 ; j < this.weights[i].length ; j++){
                 
                 bias[i][j] += learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]);
                 
-                for (int k = 0 ; k < this.weights[i][j].length ; k++)
-                    if ( i != 0)
+                for (int k=0 ; k < this.weights[i][j].length ; k++){
+                    if (i == 0)
+                        weights[i][j][k] += learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]) * network_input[k];
+                    else
                         weights[i][j][k] += learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]) * outputs[i-1][k];
+                }
             }
+        }
         
         this.weights = weights;
         this.bias = bias;
         
     }
     
-    public void print(){
+    public void learn(int epoch){
+    
+        for (int i=0 ; i < epoch ; i++){
+            int index = train_pointer % train_data.size();
+            backpropogation(this.train_data.get(index));
+            train_pointer++;
+        }
+    }
+    
+    public double evaluate(){
+        
+        int score = 0;
+		
+        for ( ArrayList<double[]> test : this.test_data){
+            double[] out = run_network( test.get(0) );
+            List output = Arrays.asList(out);
+			int max = output.indexOf(Collections.max(output));
+			
+			List desiredOutput = Arrays.asList(test.get(1));
+			int desMax = desiredOutput.indexOf(Collections.max(desiredOutput));
+			
+			if (max == desMax){
+				score += 1;
+			}
+        }
+        
+        return score/this.train_data.size();
+    
+    }
+    
+    public void print_weights(){
     
         for (int i=0 ; i < this.weights.length ; i++){
             for (int j=0 ; j < this.weights[i].length; j++){
@@ -341,4 +441,28 @@ public abstract class MLP {
 
     }
     
+    public void print_config(){
+        
+        for (int a : configs)
+            System.out.printf("\t%d" , a);
+    
+    }
+
+    public void print_bias(){
+        
+        for (int i=0 ; i < this.bias.length ; i++){
+                for (int j=0 ; j < this.bias[i].length; j++){
+
+
+                    System.out.printf("B(%d,%d): %f \t" , i , j , this.bias[i][j]);
+
+
+                System.out.println("");
+                }
+                
+            System.out.println("**********************");
+
+            }
+        
+    }
 }
