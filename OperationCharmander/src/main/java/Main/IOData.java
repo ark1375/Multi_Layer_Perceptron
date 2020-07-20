@@ -36,7 +36,8 @@ public class IOData {
 		orderingImages(path);
 		shuffleAllLists();
 	}
-
+    //TODO: this method will return a batch of images contains 10 numbers randomly from 0 to 9.
+    //do not delete it!!!
 //	public ArrayList<double[]> getBatchData() {
 //		ArrayList<BinaryImage> imageList = new ArrayList<>();
 //		ArrayList<double[]> imageData = new ArrayList<>();
@@ -77,8 +78,8 @@ public class IOData {
      *  <b>List(List())</b>: this list contains all the images binary data.
      */
     public ArrayList<ArrayList<double[]>> getAllTrainData(){
-        ArrayList<ArrayList<double[]>> allData = new ArrayList<>();
-        ArrayList<double[]> oneData = new ArrayList<>();
+        ArrayList<ArrayList<double[]>> allData = new ArrayList<>(); //this list contains all list of images.
+        ArrayList<double[]> oneData = new ArrayList<>();    //this list contains information of just one image.
         ArrayList<BinaryImage> allImages = joinAll();   //now all images are in one list
         
         for (BinaryImage img : allImages){
@@ -91,6 +92,9 @@ public class IOData {
         return allData;
     }
 
+    /**
+     * Shuffles all the lists of various numbers.
+     */
 	private void shuffleAllLists() {
 		//shuffle all the number lists:
 		Collections.shuffle(no0);
@@ -104,7 +108,10 @@ public class IOData {
 		Collections.shuffle(no8);
 		Collections.shuffle(no9);
 	}
-    
+    /**
+     * 
+     * @return Returns the Array List of all joined numbers.
+     */
     private ArrayList<BinaryImage> joinAll(){
         ArrayList<BinaryImage> temp = new ArrayList<>();
         temp.addAll(no0);
