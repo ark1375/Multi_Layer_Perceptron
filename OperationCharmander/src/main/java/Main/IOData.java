@@ -89,11 +89,8 @@ public class IOData {
         for (BinaryImage img : allImages){
             oneData.add(img.getContinuousBinaryPixels());
             oneData.add(img.getBinaryLabel());
-<<<<<<< HEAD
             allData.add((ArrayList) oneData.clone());
-=======
             allData.add(oneData);
->>>>>>> be3a0f1414e4f2f0e013d897eb6e6e0fea15520d
             oneData.clear();
         }
         return allData;

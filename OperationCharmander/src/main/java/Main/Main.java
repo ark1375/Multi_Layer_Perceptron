@@ -12,38 +12,38 @@ public class Main {
         ArrayList<ArrayList<double[]>> data_train = new IOData(false).getAllData();
         ArrayList<ArrayList<double[]>> data_test = new IOData(true).getAllData();
         
-//        for (int i = 0 ; i < 28 ; i++){
-//            for (int j =0 ; j < 28 ; j++)
-//                System.out.print(data_train.get(20).get(0)[i*j] == 1 ? "*": " ");
-//            System.out.println("");
-//        }
-//        
-//        for (double d : data_train.get(42).get(1))
-//            System.out.println(d);
+        for (int i = 0 ; i < 28 ; i++){
+            for (int j =0 ; j < 28 ; j++)
+                System.out.print(data_train.get(200).get(0)[i*j] == 1 ? "*": " ");
+            System.out.println("");
+        }
+        
+        for (double d : data_train.get(200).get(1))
+            System.out.println(d);
 
 
         
 //        System.out.println();
 //        
-        MLP network = new MLP("number rec");
-        
-        int[] config = { 784 , 20, 20, 10 };
-        network.setConfigs(config);
-        network.init(data_train, data_test, 0.35);
-        network.learn(600);
-        double[] res = network.run_network(data_test.get(30).get(0));
-        
-        for (double d: res)
-            System.out.println("res :" + d);
-        
-        for (double d: data_test.get(30).get(1))
-            System.out.println("res :" + d);
-        
-        
-       
-        System.out.println("evaluation:" + network.evaluate());
-        network.print_weights();
-        network.print_bias();
+//        MLP network = new MLP("number rec");
+//        
+//        int[] config = { 784 , 20, 20, 10 };
+//        network.setConfigs(config);
+//        network.init(data_train, data_test, 0.35);
+//        network.learn(600);
+//        double[] res = network.run_network(data_test.get(30).get(0));
+//        
+//        for (double d: res)
+//            System.out.println("res :" + d);
+//        
+//        for (double d: data_test.get(30).get(1))
+//            System.out.println("res :" + d);
+//        
+//        
+//       
+//        System.out.println("evaluation:" + network.evaluate());
+//        network.print_weights();
+//        network.print_bias();
         
         
         
