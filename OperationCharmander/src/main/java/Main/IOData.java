@@ -18,7 +18,7 @@ public class IOData {
 	private String fileLabel;
 	private int imageWidth = 28;    //image width, by default is 28 pixels
 	private int imageHeight = 28;   //image height, by default is 28 pixels
-	private ArrayList<Double[]> trainImages = new ArrayList<>(); //all images, around 60,000
+	private ArrayList<ArrayList<double[]>> allData = new ArrayList<>(); //all images, around 60,000
 	//10 lists to hold each type of image. then select randomly from these
 	//every select round, is a collection of 10 images.
 	//every of these 10 lists contains about 6000 images.
@@ -82,17 +82,20 @@ public class IOData {
      *  <b>List(List())</b>: this list contains all the images binary data.
      */
     public ArrayList<ArrayList<double[]>> getAllData(){
-        ArrayList<ArrayList<double[]>> allData = new ArrayList<>(); //this list contains all list of images.
+//        ArrayList<ArrayList<double[]>> allData = new ArrayList<>(); //this list contains all list of images.
         ArrayList<double[]> oneData = new ArrayList<>();    //this list contains information of just one image.
         ArrayList<BinaryImage> allImages = joinAll();   //now all images are in one list
         
         for (BinaryImage img : allImages){
             oneData.add(img.getContinuousBinaryPixels());
             oneData.add(img.getBinaryLabel());
+<<<<<<< HEAD
             allData.add((ArrayList) oneData.clone());
+=======
+            allData.add(oneData);
+>>>>>>> be3a0f1414e4f2f0e013d897eb6e6e0fea15520d
             oneData.clear();
         }
-        
         return allData;
     }
 
@@ -128,6 +131,7 @@ public class IOData {
         temp.addAll(no7);
         temp.addAll(no8);
         temp.addAll(no9);
+		Collections.shuffle(temp);
         return temp;
     }
 
@@ -185,69 +189,58 @@ public class IOData {
 	private void orderingImages(String path) {
 		File folder = new File(path);
 		File[] files = folder.listFiles();
-		double[] label = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		int j = 0;
 		for (int i = 0; i < files.length; i++) {
 			switch (j) {
 				case 0:
-					label[0] = 1;
-					no0.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label));
+					double[] label0 = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+					no0.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label0));
 					j++;
-					label[0] = 0;	//revert the change for other iterations and other images
 					break;
 				case 1:
-					label[1] = 1;
-					no1.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label));
+					double[] label1 = {0, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+					no1.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label1));
 					j++;
-					label[1] = 0;
 					break;
 				case 2:
-					label[2] = 1;
-					no2.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label));
+					double[] label2 = {0, 0, 1, 0, 0, 0, 0, 0, 0, 0};
+					no2.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label2));
 					j++;
-					label[2] = 0;
 					break;
 				case 3:
-					label[3] = 1;
-					no3.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label));
+					double[] label3 = {0, 0, 0, 1, 0, 0, 0, 0, 0, 0};
+					no3.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label3));
 					j++;
-					label[3] = 0;
 					break;
 				case 4:
-					label[4] = 1;
-					no4.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label));
+					double[] label4 = {0, 0, 0, 0, 1, 0, 0, 0, 0, 0};
+					no4.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label4));
 					j++;
-					label[4] = 0;
 					break;
 				case 5:
-					label[5] = 1;
-					no5.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label));
+					double[] label5 = {0, 0, 0, 0, 0, 1, 0, 0, 0, 0};
+					no5.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label5));
 					j++;
-					label[5] = 0;
 					break;
 				case 6:
-					label[6] = 1;
-					no6.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label));
+					double[] label6 = {0, 0, 0, 0, 0, 0, 1, 0, 0, 0};
+					no6.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label6));
 					j++;
-					label[6] = 0;
 					break;
 				case 7:
-					label[7] = 1;
-					no7.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label));
+					double[] label7 = {0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+					no7.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label7));
 					j++;
-					label[7] = 0;
 					break;
 				case 8:
-					label[8] = 1;
-					no8.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label));
+					double[] label8 = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0};
+					no8.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label8));
 					j++;
-					label[8] = 0;
 					break;
 				case 9:
-					label[9] = 1;
-					no9.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label));
+					double[] label9 = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+					no9.add(new BinaryImage(j, imgToMatrix(readImage(path, files[i].getName())), label9));
 					j = 0;
-					label[9] = 0;
 					break;
 				default:
 					j = 0;
