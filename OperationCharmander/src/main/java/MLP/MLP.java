@@ -44,6 +44,7 @@ public abstract class MLP {
             
     }
     
+    
     /***************************************************************************/
     
     
@@ -113,6 +114,92 @@ public abstract class MLP {
         
     }
     
+    public boolean init(ArrayList<double[]> train , int numberOfHiddenLayers, 
+                int hiddenLayerDimension, int outPutDimension, int inputDimension, double learningRate , double[][][] weights , double[][] biases)  {
+    
+        if (train != null && numberOfHiddenLayers >= 0 && hiddenLayerDimension > 0 && outPutDimension > 0 && inputDimension > 0 && learningRate > 0 && learningRate <= 1)
+            isClassActivated = true;
+        
+        else return false;
+        
+        double[] temp = train.get(0);
+        
+        if (temp.length - outPutDimension != inputDimension)
+            return false;
+        
+        this.data = train;
+        this.hiddenLayerCount = numberOfHiddenLayers;
+        this.hiddenLayerDimension = hiddenLayerDimension;
+        this.inputLayerDimension = inputDimension;
+        this.outputLayerDimension = outPutDimension;
+        this.learingingRate = learningRate;
+        
+        
+        this.weights = new double[hiddenLayerCount + 1][][];
+        this.bias = new double[hiddenLayerCount + 1][];
+        
+        //creating the apropriate array of weights
+        for (int i = 0 ; i < weights.length ; i++){
+                if ( i == weights.length - 1 )
+                    this.weights[i] = new double[outputLayerDimension][this.hiddenLayerDimension];
+                
+                else if (i == 0)
+                    this.weights[i] = new double[this.hiddenLayerDimension][inputLayerDimension];
+                
+                else
+                    this.weights[i] = new double[this.hiddenLayerDimension][this.hiddenLayerDimension];
+        }
+        
+        
+        
+        if (weights.length != this.weights.length) // If number of layers didn't match
+            return false;
+        else
+            for (int i = 0 ; i < weights.length ; i++)  //If number of neurons didn't match
+                if (weights[i].length != this.weights[i].length)
+                    return false;
+                else
+                    for (int j = 0; j < weights[i].length ; j++)    //If number of weights didn't match
+                        if (weights[i][j].length != this.weights[i][j].length)
+                            return false;
+            
+        
+                        
+        
+        //Creating bias array
+        for (int i = 0 ; i < bias.length ; i++){
+                if ( i == bias.length - 1 )
+                    this.bias[i] = new double[outputLayerDimension];
+                
+                else
+                    
+                    this.bias[i] = new double[hiddenLayerDimension];
+        }
+        
+        
+        //Comparing biases
+        if ( biases.length != this.bias.length)
+            return false;
+        else
+            for (int i=0; i < this.bias.length ; i++)
+                if (biases[i].length != this.bias[i].length)
+                    return false;
+        
+        this.bias = biases;
+        this.weights = weights;
+        
+        return true;     
+        
+        
+    }
+    
+    
+    public boolean init(ArrayList<double[]> train ,int[] configs, double learningRate)  {
+    
+          
+        
+        
+    }
     public double[] activate(double[] data){
         
         double[] preLayerSignals = data;
@@ -211,66 +298,47 @@ public abstract class MLP {
     
     }
     
-    public void inititate_learning(int epochs){}
+    public void inititate_learning(int epochs){
     
+        for(int i=0 ; i < data.size() ; i++)
+            backpropogation(data.get(i));
+        
+    }
     
+    private void backpropogation(double[] input){
     
-    public double[][][] backpropogation(double[] input){
-    
-        
-        double[] network_input = new double[inputLayerDimension];   //Network input
-        double[] desiered_output = new double[outputLayerDimension];//d(j)
-        
-        for (int i=0 ; i <  input.length ; i++){
-            if (i < inputLayerDimension)
-                network_input[i] = input[i];
-            else
-                desiered_output[i-inputLayerDimension] = input[i];
-        }
-        
-        double[] network_output = activate(network_input);      //Networks output
-        double[][] fields = induced_field(network_input);       //v(ij)
-        double[][] outputs = neurons_output(network_input);     //y(ij)
-        double[][][] weights = this.weights;                    //w(ij)
-        double[][] errors = new double[this.weights.length][];
-        
-        for (int i=0 ; i < weights.length; i++)
-            errors[i] = new double[weights[i].length];
-                
-        System.out.println("error");
-        /*Potential Error*/
-        for (int i = errors.length - 1 ; i >= 0 ; i--){     //current layer
-            for (int j = 0 ; j < errors[i].length ; j++){   //current neuron
-                
-                if (i == errors.length - 1)
-                    errors[i][j] = desiered_output[j] - network_output[j];
-                
-                else{
-                    double error = 0;
-                    
-                    for (int k = 0 ; k < errors[i+1].length ; k++)
-                        error += errors[i+1][k] * activation_function_derivative(fields[i+1][k]) * weights[i+1][k][j];
-                    
-                    
-                    errors[i][j] = error;
-                
-                }
-//            
-            }
-            
-            
-        }
+
         
         for ( int i = this.weights.length - 1 ; i >= 0 ; i--)
-            for (int j=0 ; j < this.weights[i].length ; j++)
+            for (int j=0 ; j < this.weights[i].length ; j++){
+                
+                bias[i][j] += learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]);
+                
                 for (int k = 0 ; k < this.weights[i][j].length ; k++)
                     if ( i != 0)
                         weights[i][j][k] += learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]) * outputs[i-1][k];
-            
+            }
+        
         this.weights = weights;
-        return weights;
+        this.bias = bias;
+        
     }
     
+    public void print(){
     
+        for (int i=0 ; i < this.weights.length ; i++){
+            for (int j=0 ; j < this.weights[i].length; j++){
+                for (int k=0 ; k < this.weights[i][j].length ; k++){
+                
+                    System.out.printf("W(%d,%d,%d): %f \t" , i , j , k , this.weights[i][j][k]);
+                
+                }
+                System.out.println("");
+            }
+            System.out.println("**********************");
+        
+        }
+
+    }
     
 }

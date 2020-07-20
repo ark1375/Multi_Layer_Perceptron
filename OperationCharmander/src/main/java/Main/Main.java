@@ -1,123 +1,47 @@
 
 package Main;
 
-import MLP.MLP;
+
+import MLP.MLP2;
 import MLP.Sig_MLP;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import javax.imageio.ImageIO;
-import java.lang.Math;
 import java.util.ArrayList;
+import java.lang.Math;
 
-//class vector{
-        
-//        public double x = 0;
-//        public double y = 0;
-//        
-//        vector (double x , double y){
-//            this.x = x;
-//            this.y = y;
-//        }
-//        
-//        vector(){}
-//        
-//        public vector normal(){
-//            if (x == 0 && y ==0)
-//                return new vector(0,0);
-//            else {
-//                vector v = new vector();
-//                v.x = x / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-//                v.y = y / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-//                
-//                return v;
-//            }  
-//                
-//        }
-//        
-//        @Override
-//        public String toString(){return x + "," + y;}
-//        
-//    }
-//
 public class Main {
-//
+
     public static void main(String[] args) throws IOException {
-//        
-//        
-//        BufferedImage img = ImageIO.read(new File("E:\\Projects\\Projects 2020\\ANN-Final Project\\op-charmander\\Data\\train\\allow.png"));
-//        int pix[][]= new int[img.getWidth()][img.getHeight()];
-//        
-//        for (int i=0 ; i < img.getWidth() ; i++)
-//            for (int j =0 ; j < img.getHeight() ; j++)
-//                pix[i][j]= img.getRGB(i,j);
-//        
-////        for (int i=0 ; i < img.getWidth() ; i++)
-////            for (int j =0 ; j < img.getHeight() ; j++)
-////                System.out.println (pix[i][j]);
-//        
-//        double sumx = 0;
-//        double sumy = 0;
-//
-//        for (int i=0 ; i < img.getWidth() ; i++){
-//            for (int j =0 ; j < img.getHeight() ; j++){
-//                
-//                if ( pix[i][j] == -1 ){
-//                    vector vec = new vector(i-14 , j-14);
-//                    vector ven = vec.normal();
-//                    sumx += ven.x;
-//                    sumy += ven.y;
-//                }
-//            
-//            }    
-//        }
-//        
-//        vector vec = new vector(sumx,sumy);
-//        vector vecn = vec.normal();
-//        System.out.println(vecn);
-//        
-//        double[][][] n = new double [3][3][5];
-//        System.out.println(n[0][0].length);
+
+        MLP2 mlp = new MLP2("Test");
+        double[] d_tr = {1,1};
+        double[] d_res = {1,0,1};
+        ArrayList<ArrayList<double[]>> dat = new ArrayList<>();
+        ArrayList<double[]> l = new ArrayList<>();
+        l.add(d_tr);
+        l.add(d_res);
+        dat.add(l);
         
-          Sig_MLP m;
-          m = new Sig_MLP("name");
-          ArrayList<double[]> dataset = new ArrayList<>();
-          double[] d1 = {0.2,0.1,0.6,0.5,0.3,0.4,1,1};
-          dataset.add(d1);
-//public boolean init(int numberOfHiddenLayers, int hiddenLayerDimension, int outPutDimension, int inputDimension, double learningRate)
-          boolean b = m.init(dataset, 3,2,2,6,0.9);
-          double[][][] er = m.backpropogation(d1);
-          
-          for (double[][] o1 : er)
-              for (double[] o2 : o1)
-                  for (double o : o2)
-                    System.out.println(o + " , ");
-          
-          er = m.backpropogation(d1);
-          for (double[][] o1 : er)
-              for (double[] o2 : o1)
-                  for (double o : o2)
-                    System.out.println(o + " , ");
-          
-          er = m.backpropogation(d1);
-          for (double[][] o1 : er)
-              for (double[] o2 : o1)
-                  for (double o : o2)
-                    System.out.println(o + " , ");
-          
-          er = m.backpropogation(d1);
-          for (double[][] o1 : er)
-              for (double[] o2 : o1)
-                  for (double o : o2)
-                    System.out.println(o + " , ");
-          
-          er = m.backpropogation(d1);
-          for (double[][] o1 : er)
-              for (double[] o2 : o1)
-                  for (double o : o2)
-                    System.out.println(o + " , ");
+        double[][][] weights = {
+                                    {{ 1, 1 } , {1 , 1}},
+                                    {{ 1, 1  } , { 1, 1 } , { 1 , 1 }}
+        };
+//        
+        double[][] bias = { {0 , 0} , {0 , 0 , 0} };
+        int[] conf = {2,2,3};
+        mlp.setConfigs(conf);
+//        System.out.println(mlp.setWeights(weights));
+        System.out.println(mlp.setBiases(bias));
+        System.out.println(mlp.init(dat, dat, 0.25));
+        mlp.print_weights();
+  
+//        mlp.init(l,2,, 2, 3, 2, 0.5, weights,bias) ;
+//        
+//        mlp.inititate_learning(0);
+//        
+//        mlp.print();
 
-
+        
+        
     }
     
 }
