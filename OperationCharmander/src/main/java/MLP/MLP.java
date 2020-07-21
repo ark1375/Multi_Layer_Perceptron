@@ -27,8 +27,8 @@ public class MLP {
     private String mlpName ="";                  //A chosen name for the ann
     private double learingingRate = 0;           //The alpha parameter or the learning reate
     
-    private ArrayList<  ArrayList<double[]> > train_data = null;     //Actual input data that ann will be train with
-    private ArrayList<  ArrayList<double[]> > test_data = null;
+    private ArrayList<  ArrayList<double[]> > train_data = new ArrayList<>();     //Actual input data that ann will be train with
+    private ArrayList<  ArrayList<double[]> > test_data = new ArrayList<>();
     
     private int train_pointer = 0;
     
@@ -111,40 +111,39 @@ public class MLP {
     
         if (!isConfigSet) return false;
         
-        if (!evaluate_data(data))
-            return false;
-        
-        this.train_data = data;
+        for (ArrayList<double[]> tmp : data){
+            if (evaluate_data(tmp))
+                train_data.add(tmp);
+        }
+    
         
         return true;
-        
     }
     
     public boolean set_test_data(ArrayList< ArrayList<double[]> > data){
         
         if (!isConfigSet) return false;
         
-        if (!evaluate_data(data))
-            return false;
+        for (ArrayList<double[]> tmp : data)
+            if (evaluate_data(tmp))
+                test_data.add(tmp);
     
-        this.test_data = data;
         
         return true;
     }
     
-    private boolean evaluate_data(ArrayList< ArrayList<double[]> > data){
+    public boolean evaluate_data( ArrayList<double[]> data){
         
-        for (ArrayList<double[]> dt : data){
 
-            if(dt.size() != 2)
+            if(data.size() != 2)
                 return false;
             
-            if (dt.get(0).length != configs[0])
+            if (data.get(0).length != configs[0])
                 return false;
             
-            if (dt.get(1).length != configs[configs.length-1])
+            if (data.get(1).length != configs[configs.length-1])
                 return false;
-        }
+        
             
         return true;
     
@@ -187,6 +186,10 @@ public class MLP {
             
             for (int i=0 ; i < this.bias.length ; i++)
                 this.bias[i] = new double[configs[i+1]];
+            
+            for (int i=0 ; i < this.bias.length ; i++)
+                for (int j=0 ; j < this.bias[i].length ; j++)
+                    bias[i][j] = new Random().nextGaussian();
             
         }
         
@@ -236,6 +239,10 @@ public class MLP {
             
             for (int i=0 ; i < this.bias.length ; i++)
                 this.bias[i] = new double[configs[i+1]];
+            
+            for (int i=0 ; i < this.bias.length ; i++)
+                for (int j=0 ; j < this.bias[i].length ; j++)
+                    bias[i][j] = new Random().nextGaussian();
             
         }
         
@@ -339,9 +346,8 @@ public class MLP {
     
     }
     
-    private void backpropogation(ArrayList<double[]> input){
+    public void backpropogation(ArrayList<double[]> input){
         
-        System.out.println("bp");
         if (input.size() != 2) return;
         
         double[] network_input = input.get(0);   //Network input
@@ -360,6 +366,7 @@ public class MLP {
                 for (int j=0 ; j < weights[i].length ; j++)
                     errors[i][j] = desiered_output[j] - outputs[i][j];
                 
+
             else{
                 
                 for (int j=0 ; j < this.weights[i].length ; j++){
@@ -378,19 +385,26 @@ public class MLP {
         for (int i=0 ; i < this.weights.length ; i++){
             for (int j =0 ; j < this.weights[i].length ; j++){
                 
-                bias[i][j] += learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]);
+                bias[i][j] += (learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]));
                 
                 for (int k=0 ; k < this.weights[i][j].length ; k++){
-                    if (i == 0)
-                        weights[i][j][k] += learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]) * network_input[k];
-                    else
-                        weights[i][j][k] += learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]) * outputs[i-1][k];
+                    if (i == 0){
+                        
+                        double difference = (learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]) * network_input[k]);
+                        weights[i][j][k] += difference;
+                        
+                    }
+                    else{
+                        double difference = (learingingRate * errors[i][j] * activation_function_derivative(fields[i][j]) * outputs[i-1][k]);
+                        weights[i][j][k] += difference;
+                    }
+                    
                 }
             }
         }
         
-        this.weights = weights;
-        this.bias = bias;
+        this.weights = (double[][][]) weights.clone();
+        this.bias = (double[][]) bias.clone();
         
     }
     
@@ -410,6 +424,7 @@ public class MLP {
         for ( ArrayList<double[]> test : this.test_data){
             double[] out = run_network( test.get(0) );
             List output = Arrays.asList(out);
+            
 			int max = output.indexOf(Collections.max(output));
 			
 			List desiredOutput = Arrays.asList(test.get(1));
@@ -465,4 +480,76 @@ public class MLP {
             }
         
     }
+    
+    public void print_data_sizes(){
+        System.out.println(train_data.size());
+        System.out.println(test_data.size());
+    
+    }
+
+    
+    /************************************************************************************************************************************/
+    public int[] getConfigs() {
+        return configs;
+    }
+
+    public boolean isIsConfigSet() {
+        return isConfigSet;
+    }
+
+    public double[][][] getWeights() {
+        return weights;
+    }
+
+    public boolean isIsWeightsSet() {
+        return isWeightsSet;
+    }
+
+    public double[][] getBias() {
+        return bias;
+    }
+
+    public boolean isIsBiasSet() {
+        return isBiasSet;
+    }
+
+    public String getMlpName() {
+        return mlpName;
+    }
+
+    public double getLearingingRate() {
+        return learingingRate;
+    }
+
+    public ArrayList<ArrayList<double[]>> getTrain_data() {
+        return train_data;
+    }
+
+    public ArrayList<ArrayList<double[]>> getTest_data() {
+        return test_data;
+    }
+
+    public int getTrain_pointer() {
+        return train_pointer;
+    }
+
+    public boolean isIsClassActivated() {
+        return isClassActivated;
+    }
+    
+    
+    
+    /*********************************************************************************************************************/
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
 }
