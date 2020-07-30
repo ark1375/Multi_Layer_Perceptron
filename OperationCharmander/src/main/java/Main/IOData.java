@@ -18,6 +18,7 @@ public class IOData {
 	private String fileLabel;
 	private int imageWidth = 28;    //image width, by default is 28 pixels
 	private int imageHeight = 28;   //image height, by default is 28 pixels
+	private boolean sendRandom = true;
 	private ArrayList<ArrayList<double[]>> allData = new ArrayList<>(); //all images, around 60,000
 	//10 lists to hold each type of image. then select randomly from these
 	//every select round, is a collection of 10 images.
@@ -33,15 +34,25 @@ public class IOData {
 	private ArrayList<BinaryImage> no8 = new ArrayList<>(); //all number 8
 	private ArrayList<BinaryImage> no9 = new ArrayList<>(); //all number 9
 
-	public IOData(Boolean isTest) {
-		if(!isTest)
+	/**
+	 *
+	 * @param isTest If true, <b>test data set</b> will used to perform the
+	 * operations.<br>
+	 * otherwise <b>the train data set</b> will used to attributes of the
+	 * Object.
+	 * @param sendRandom If true, the read data set will
+	 */
+	public IOData(boolean isTest, boolean sendRandom) {
+		this.sendRandom = sendRandom;
+		if (!isTest) {
 			orderingImages(trainPath);
-		else
+		} else {
 			orderingImages(testPath);
+		}
 		shuffleAllLists();
 	}
-    //TODO: this method will return a batch of images contains 10 numbers randomly from 0 to 9.
-    //do not delete it!!!
+	//TODO: this method will return a batch of images contains 10 numbers randomly from 0 to 9.
+	//do not delete it!!!
 //	public ArrayList<double[]> getBatchData() {
 //		ArrayList<BinaryImage> imageList = new ArrayList<>();
 //		ArrayList<double[]> imageData = new ArrayList<>();
@@ -72,65 +83,74 @@ public class IOData {
 ////		imageData.add(imageList.get(0).getBinaryLabel());
 //		return imageData;
 //	}
-    
-    /**
-     * 
-     * @return Get All the data of train resources.<br>
-     *  List (List([]))<br><br>From the most inner part:<br>
-     *  <b>[]</b>: 1D array includes all the <i>binary pixels</i> of an image. every row separates by 28 elements. and also includes the <i>binary label</i>.<br>
-     *  <b>List([])</b>: The inner list contains 2 arrays. first one is binary pixels array. the second one is binary label. Every element of this list is for <b>just 1 image</b>.<br>
-     *  <b>List(List())</b>: this list contains all the images binary data.
-     */
-    public ArrayList<ArrayList<double[]>> getAllData(){
-//        ArrayList<ArrayList<double[]>> allData = new ArrayList<>(); //this list contains all list of images.
-        ArrayList<double[]> oneData = new ArrayList<>();    //this list contains information of just one image.
-        ArrayList<BinaryImage> allImages = joinAll();   //now all images are in one list
-        
-        for (BinaryImage img : allImages){
-            oneData.add(img.getContinuousBinaryPixels());
-            oneData.add(img.getBinaryLabel());
-            allData.add((ArrayList) oneData.clone());
-            allData.add(oneData);
-            oneData.clear();
-        }
-        return allData;
-    }
 
-    /**
-     * Shuffles all the lists of various numbers.
-     */
+	/**
+	 *
+	 * @return Get All the data of train resources.<br>
+	 * List (List([]))<br><br>From the most inner part:<br>
+	 * <b>[]</b>: 1D array includes all the <i>binary pixels</i> of an image.
+	 * every row separates by 28 elements. and also includes the <i>binary
+	 * label</i>.<br>
+	 * <b>List([])</b>: The inner list contains 2 arrays. first one is binary
+	 * pixels array. the second one is binary label. Every element of this list
+	 * is for <b>just 1 image</b>.<br>
+	 * <b>List(List())</b>: this list contains all the images binary data.
+	 */
+	public ArrayList<ArrayList<double[]>> getAllData() {
+//        ArrayList<ArrayList<double[]>> allData = new ArrayList<>(); //this list contains all list of images.
+		ArrayList<double[]> oneData = new ArrayList<>();    //this list contains information of just one image.
+		ArrayList<BinaryImage> allImages = joinAll();   //now all images are in one list
+
+		for (BinaryImage img : allImages) {
+			oneData.add(img.getContinuousBinaryPixels());
+			oneData.add(img.getBinaryLabel());
+			allData.add((ArrayList) oneData.clone());
+			allData.add(oneData);
+			oneData.clear();
+		}
+		return allData;
+	}
+
+	/**
+	 * Shuffles all the lists of various numbers.
+	 */
 	private void shuffleAllLists() {
 		//shuffle all the number lists:
-		Collections.shuffle(no0);
-		Collections.shuffle(no1);
-		Collections.shuffle(no2);
-		Collections.shuffle(no3);
-		Collections.shuffle(no4);
-		Collections.shuffle(no5);
-		Collections.shuffle(no6);
-		Collections.shuffle(no7);
-		Collections.shuffle(no8);
-		Collections.shuffle(no9);
+		if (sendRandom) {
+			Collections.shuffle(no0);
+			Collections.shuffle(no1);
+			Collections.shuffle(no2);
+			Collections.shuffle(no3);
+			Collections.shuffle(no4);
+			Collections.shuffle(no5);
+			Collections.shuffle(no6);
+			Collections.shuffle(no7);
+			Collections.shuffle(no8);
+			Collections.shuffle(no9);
+		}
 	}
-    /**
-     * 
-     * @return Returns the Array List of all joined numbers.
-     */
-    private ArrayList<BinaryImage> joinAll(){
-        ArrayList<BinaryImage> temp = new ArrayList<>();
-        temp.addAll(no0);
-        temp.addAll(no1);
-        temp.addAll(no2);
-        temp.addAll(no3);
-        temp.addAll(no4);
-        temp.addAll(no5);
-        temp.addAll(no6);
-        temp.addAll(no7);
-        temp.addAll(no8);
-        temp.addAll(no9);
-		Collections.shuffle(temp);
-        return temp;
-    }
+
+	/**
+	 *
+	 * @return Returns the Array List of all joined numbers.
+	 */
+	private ArrayList<BinaryImage> joinAll() {
+		ArrayList<BinaryImage> temp = new ArrayList<>();
+		temp.addAll(no0);
+		temp.addAll(no1);
+		temp.addAll(no2);
+		temp.addAll(no3);
+		temp.addAll(no4);
+		temp.addAll(no5);
+		temp.addAll(no6);
+		temp.addAll(no7);
+		temp.addAll(no8);
+		temp.addAll(no9);
+		if (sendRandom) {
+			Collections.shuffle(temp);
+		}
+		return temp;
+	}
 
 	/**
 	 * first: read the image then for every pixel in the image, gather rgb data,
