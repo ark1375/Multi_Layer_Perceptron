@@ -1,4 +1,5 @@
-# Operation Charmander
+# A Dense Neural Network Implementation
+## Operation Charmander
 Operation Charmander (I don't know why I picked this name) is a university project designed around implementing some of the most popular ANNs like Multilayer Perceptron Network and ANFIS (Adaptive neuro-fuzzy inference system) using Java programming language. It's not a fancy project that you can use in your application or something but it is fine for understanding the coding and some maths behind neural networks. So for any large project, I recommend you to use a commercial library.
 
 The main source of the knowledge behind this project is a book called **"Fundamentals of Computational Intelligence"** by ***Keller, Liu, and Fogel***. So for any more detail on maths of the project, I refer to this book.
